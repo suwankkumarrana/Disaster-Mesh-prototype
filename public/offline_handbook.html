@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DisasterMesh — Offline Emergency Survival Handbook & Radio Guide</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111827;
+      --border: #e5e7eb;
+      --red: #b91c1c;
+      --blue: #1d4ed8;
+      --gray: #4b5563;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+      margin: 0;
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header {
+      border-bottom: 3px solid var(--red);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    h1 { margin: 0; font-size: 22px; color: var(--red); }
+    h2 { font-size: 16px; margin-top: 24px; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; color: var(--blue); }
+    h3 { font-size: 14px; margin-top: 12px; margin-bottom: 4px; }
+    p, li { font-size: 13px; color: #374151; }
+    ul { padding-left: 20px; margin-bottom: 12px; }
+    .badge { display: inline-block; background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+    .card { background: #f9fafb; border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-bottom: 12px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 600px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    .print-btn { background: var(--red); color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
+    @media print {
+      body { padding: 0; font-size: 11pt; }
+      .print-btn { display: none; }
+      .card { border: 1px solid #000; break-inside: avoid; }
+      h2 { color: #000; border-color: #000; }
+    }
+    code, pre { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; background: #f3f4f6; padding: 2px 5px; border-radius: 3px; }
+    pre { padding: 8px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+      <h1>DisasterMesh India — Offline Emergency Pocket Handbook</h1>
+      <p style="margin:2px 0 0; font-size:12px; color:var(--gray);">Field Survival & Peer-to-Peer Radio Operations Manual | Self-Contained Zero-Dependency</p>
+    </div>
+    <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+  </div>
+
+  <div class="card" style="background:#fef2f2; border-color:#fca5a5;">
+    <strong>⚠️ CRITICAL EMERGENCY NOTICE:</strong>
+    <p style="margin-top:4px;">When cell towers collapse during cyclones, floods, or earthquakes, this printed or offline guide contains essential steps for drinking water safety, medical triage, and tuning into off-grid emergency mesh channels.</p>
+  </div>
+
+  <h2>1. National & State 24x7 Emergency Helplines</h2>
+  <div class="grid-2">
+    <div class="card">
+      <h3>National Emergency Numbers</h3>
+      <ul>
+        <li><strong>Unified National Emergency:</strong> 112 (Works without SIM card on active towers)</li>
+        <li><strong>National Disaster Helpline (NDMA):</strong> 1078</li>
+        <li><strong>Ambulance Emergency:</strong> 108</li>
+        <li><strong>Fire & Flood Rescue:</strong> 101</li>
+        <li><strong>Child Helpline:</strong> 1098 | <strong>Women Helpline:</strong> 181</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Odisha State Disaster Numbers (OSDMA)</h3>
+      <ul>
+        <li><strong>State Emergency Operation Center:</strong> 1070 / 0674-2534177</li>
+        <li><strong>Puri District Emergency (DEOC):</strong> 06752-223237</li>
+        <li><strong>Jagatsinghpur DEOC:</strong> 06722-220340</li>
+        <li><strong>Kendrapara DEOC:</strong> 06727-232803</li>
+        <li><strong>Balasore DEOC:</strong> 06782-262674</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 id="firstaid">2. Immediate Life-Saving Survival Protocols</h2>
+  <div class="grid-2">
+    <div class="card">
+      <h3>💧 Drinking Water Purification (No Power)</h3>
+      <ul>
+        <li><strong>Household Bleach / Chlorine Drops:</strong> If clear water, add <strong>2 drops</strong> of unscented household bleach (5-6% sodium hypochlorite) per 1 liter of water. Shake well and let stand for <strong>30 minutes</strong> before drinking.</li>
+        <li><strong>Boiling:</strong> If fuel is available, bring water to a rolling boil for a minimum of <strong>3 to 5 minutes</strong>.</li>
+        <li><strong>Halazone / Chlorine Tablets:</strong> 1 tablet per 20 liters. Wait 30 minutes.</li>
+        <li><em>Never drink stagnant flood water directly — risk of cholera and leptospirosis.</em></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>🐍 Snakebite Emergency Protocol</h3>
+      <ul>
+        <li><strong>DO NOT</strong> cut the bite wound or attempt to suck venom.</li>
+        <li><strong>DO NOT</strong> apply ice, electricity, or tight arterial tourniquets.</li>
+        <li><strong>DO</strong> immobilize the bitten limb using a splint or sling at heart level.</li>
+        <li><strong>DO</strong> remove rings, watches, or tight clothing near the bite before swelling starts.</li>
+        <li>Transport calmly to the nearest District Hospital (DHH) for polyvalent antivenom.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🌀 Cyclone Wind & Surge Safety</h3>
+    <ul>
+      <li>Do not shelter under tin sheds, asbestos roofs, or near coconut trees. Move immediately to a reinforced concrete Multi-Purpose Cyclone Shelter (MPCS).</li>
+      <li><strong>The Eye of the Cyclone:</strong> If violent winds suddenly stop and the sky clears, <em>do not go outside</em>. The calm center is passing; catastrophic hurricane-force winds will resume from the opposite direction within 20 to 45 minutes.</li>
+      <li>Turn off main electrical breaker and gas cylinders before flood waters enter the home.</li>
+    </ul>
+  </div>
+
+  <h2 id="hardware">3. Hardware Guide: Off-Grid Mesh Relays (LoRa 865 MHz)</h2>
+  <div class="card">
+    <p>Low-cost ($5 to $25) ESP32-based LoRa radios allow battery-operated peer-to-peer communication across 5 to 15 kilometers without any internet service.</p>
+    
+    <h3>India Frequency & Regulatory Specification (WPC Approved):</h3>
+    <ul>
+      <li><strong>Operating Frequency:</strong> <code>865.200 MHz</code> (License-Free ISM Band for India)</li>
+      <li><strong>Modulation:</strong> LoRa, Bandwidth 250 kHz, Spreading Factor SF11, Coding Rate 4/8</li>
+      <li><strong>Transmit Power:</strong> Up to 20 dBm (100 mW) — strictly compliant with WPC guidelines</li>
+    </ul>
+
+    <h3>Wiring an ESP32 to SX1262 / SX1276 LoRa Module:</h3>
+    <pre>
+ESP32 Pin       SX1262 LoRa Module
+----------------------------------
+GPIO 18  -----> SCK  (SPI Clock)
+GPIO 19  -----> MISO (SPI Master In)
+GPIO 23  -----> MOSI (SPI Master Out)
+GPIO 5   -----> NSS  (Chip Select)
+GPIO 26  -----> DIO1 (Interrupt)
+GPIO 14  -----> RST  (Reset)
+3.3V     -----> VCC  (Use clean 3.3V power, NOT 5V!)
+GND      -----> GND
+    </pre>
+    <p class="text-xs text-muted">Power with an 18650 3.7V rechargeable Li-ion battery and 5V 5W portable solar panel mounted on a bamboo pole or rooftop.</p>
+  </div>
+
+  <h2>4. Radio & HAM Frequencies for Coastal Emergency</h2>
+  <div class="card">
+    <ul>
+      <li><strong>Amateur HAM Radio Net (VHF):</strong> <code>144.500 MHz</code> & <code>145.000 MHz</code> Simplex</li>
+      <li><strong>Amateur HAM Radio HF Emergency Net:</strong> <code>7.050 MHz</code> LSB (National Disaster Net)</li>
+      <li><strong>DisasterMesh Digital Packet Channel:</strong> <code>865.200 MHz</code> (Mesh Node ID: <code>NODE-0x4A8F</code>)</li>
+    </ul>
+  </div>
+
+  <p style="text-align:center; font-size:11px; color:var(--gray); margin-top:20px;">
+    DisasterMesh India — Open Source Disaster Resilience Platform. Compliant with Digital Personal Data Protection Act, 2023.
+  </p>
+
+</body>
+</html>

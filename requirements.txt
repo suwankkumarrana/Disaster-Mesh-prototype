@@ -1,0 +1,11 @@
+# DisasterMesh India
+# Zero external dependencies required!
+# Runs entirely on the Python 3.10+ standard library:
+# - http.server
+# - socketserver
+# - sqlite3
+# - urllib
+# - json
+# - gzip
+# - csv
+# - hashlib

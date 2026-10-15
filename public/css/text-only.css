@@ -1,0 +1,90 @@
+/**
+ * DisasterMesh Ultra-Low-Bandwidth Text-Only Mode Stylesheet
+ * Strips all heavy styling, gradients, and animations for 2G / Satellite Links (< 4 KB)
+ */
+
+body.text-only-active {
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif !important;
+  line-height: 1.4 !important;
+}
+
+body.text-only-active .app-header,
+body.text-only-active .emergency-ticker,
+body.text-only-active .nav-tabs-bar,
+body.text-only-active .hero-box,
+body.text-only-active .stat-card,
+body.text-only-active .how-it-works-section,
+body.text-only-active .form-card,
+body.text-only-active .resource-card,
+body.text-only-active .alert-card,
+body.text-only-active .table-responsive,
+body.text-only-active .app-footer,
+body.text-only-active .modal-card {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #000000 !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+body.text-only-active .brand-title,
+body.text-only-active .hero-title,
+body.text-only-active .step-title,
+body.text-only-active .stat-value,
+body.text-only-active .alert-title,
+body.text-only-active .resource-card-title {
+  color: #000000 !important;
+}
+
+body.text-only-active .emergency-ticker {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.text-only-active .pulse-indicator {
+  display: none !important;
+}
+
+body.text-only-active .btn {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+body.text-only-active .btn:hover {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.text-only-active .btn-emergency {
+  background: #000000 !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+}
+
+body.text-only-active .form-control {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #000000 !important;
+}
+
+body.text-only-active .badge {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #000000 !important;
+}
+
+body.text-only-active .data-table th,
+body.text-only-active .data-table td {
+  border: 1px solid #000000 !important;
+  color: #000000 !important;
+  background: #ffffff !important;
+}
+
+body.text-only-active #resource-map {
+  display: none !important;
+}

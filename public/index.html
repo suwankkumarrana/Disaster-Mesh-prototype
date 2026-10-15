@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#b91c1c">
+  <meta name="description" content="DisasterMesh India: Off-grid peer-to-peer emergency communications and relief network for cyclones, floods, and earthquakes.">
+  <title>DisasterMesh India — Off-Grid Emergency Network</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/main.css">
+  
+  <!-- Leaflet CSS for interactive mapping (asynchronously styled) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+</head>
+<body>
+
+  <!-- Top Emergency Alert Ticker -->
+  <div class="emergency-ticker" role="alert" aria-live="assertive">
+    <div class="ticker-content">
+      <span class="pulse-indicator"></span>
+      <span id="emergency-ticker-text">🚨 IMD [RED ALERT]: Severe Cyclone Warning for Coastal Bay of Bengal. Cell/Internet disruption expected.</span>
+    </div>
+    <button id="btn-audio-alarm" class="pill-btn" style="background:#450a0a; color:#fca5a5; border-color:#ef4444;" title="Play Siren & Voice Announcement">
+      🔊 <span data-i18n="btn_trigger_alarm">Play Siren</span>
+    </button>
+  </div>
+
+  <!-- Header Section -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-section">
+        <!-- Emergency Mesh SVG Icon -->
+        <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="50" cy="50" r="46" fill="#1e293b" stroke="#dc2626" stroke-width="4"/>
+          <path d="M50 20L80 75H20L50 20Z" fill="#dc2626"/>
+          <circle cx="50" cy="38" r="4" fill="#ffffff"/>
+          <circle cx="36" cy="62" r="4" fill="#ffffff"/>
+          <circle cx="64" cy="62" r="4" fill="#ffffff"/>
+          <line x1="50" y1="38" x2="36" y2="62" stroke="#ffffff" stroke-width="2"/>
+          <line x1="50" y1="38" x2="64" y2="62" stroke="#ffffff" stroke-width="2"/>
+          <line x1="36" y1="62" x2="64" y2="62" stroke="#ffffff" stroke-width="2"/>
+        </svg>
+        <div>
+          <h1 class="brand-title" data-i18n="site_title">DisasterMesh India</h1>
+          <p class="brand-tagline" data-i18n="tagline">Off-Grid Peer-to-Peer Emergency Communications Network</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <!-- Language Switcher -->
+        <div class="lang-switcher" aria-label="Select Language">
+          <button class="lang-btn active-lang" data-lang="en">English</button>
+          <button class="lang-btn" data-lang="or">ଓଡ଼ିଆ</button>
+          <button class="lang-btn" data-lang="hi">हिन्दी</button>
+        </div>
+
+        <!-- Low-Bandwidth Text Mode Toggle -->
+        <button id="toggle-text-mode" class="pill-btn" data-i18n="btn_text_mode">Text-Only Mode</button>
+        <!-- Accessibility Contrast Toggle -->
+        <button id="toggle-contrast" class="pill-btn" data-i18n="btn_contrast">High Contrast</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs Bar -->
+  <nav class="nav-tabs-bar" aria-label="Emergency Navigation">
+    <div class="nav-tabs-container">
+      <button class="nav-link active" data-tab="home" data-i18n="nav_home">Overview & Hub</button>
+      <button class="nav-link" data-tab="sos" data-i18n="nav_sos" style="color:#f87171; font-weight:800;">🚨 Emergency SOS</button>
+      <button class="nav-link" data-tab="missing" data-i18n="nav_missing">Missing Persons</button>
+      <button class="nav-link" data-tab="resources" data-i18n="nav_resources">Shelters & Water</button>
+      <button class="nav-link" data-tab="alerts" data-i18n="nav_alerts">Live Alerts</button>
+      <button class="nav-link" data-tab="guides" data-i18n="nav_guides">Mesh Setup & Guides</button>
+      <button class="nav-link" data-tab="volunteers" data-i18n="nav_volunteers">Volunteers & Donors</button>
+      <button class="nav-link" data-tab="mesh" data-i18n="nav_mesh">Mesh Node Monitor</button>
+      <button class="nav-link" data-tab="admin" data-i18n="nav_admin">Responders Console</button>
+      <button class="nav-link" data-tab="drills" data-i18n="nav_drills">Field Drills</button>
+    </div>
+  </nav>
+
+  <!-- Drill Status Banner (When simulated network conditions are applied) -->
+  <div id="drill-status-banner" style="display:none; padding:10px 16px; margin:0 auto; max-width:1200px;"></div>
+
+  <!-- Main Content Container -->
+  <main class="main-wrapper">
+
+    <!-- 1. HOME / HUB VIEW -->
+    <section id="view-home" class="tab-view">
+      <div class="hero-box">
+        <h2 class="hero-title" data-i18n="hub_hero_title">When Cell Towers & Power Fall, DisasterMesh Stays On.</h2>
+        <p class="hero-desc" data-i18n="hub_hero_desc">
+          A decentralized, off-grid communication hub designed for floods, cyclones, and earthquakes. Relays SOS beacons, connects relief shelters, and publishes life-saving instructions peer-to-peer using LoRa radios, Wi-Fi Direct, and browser mesh caches.
+        </p>
+        <div class="hero-actions">
+          <a href="#sos" class="btn btn-emergency" data-i18n="hub_btn_sos">🚨 SEND EMERGENCY SOS</a>
+          <a href="#resources" class="btn btn-primary" data-i18n="hub_btn_shelters">Find Cyclone Shelters & Water</a>
+          <a href="/offline_handbook.html" target="_blank" class="btn btn-secondary" data-i18n="hub_btn_offline_kit">📥 Download Offline Handbook</a>
+        </div>
+      </div>
+
+      <!-- Live Emergency Stats Ribbon -->
+      <div class="stats-ribbon">
+        <div class="stat-card">
+          <div id="stat-alerts" class="stat-value text-primary">3</div>
+          <div class="stat-label" data-i18n="stat_active_alerts">Active Official Alerts</div>
+        </div>
+        <div class="stat-card">
+          <div id="stat-sos" class="stat-value" style="color:#ef4444;">2</div>
+          <div class="stat-label" data-i18n="stat_pending_sos">Pending SOS Dispatches</div>
+        </div>
+        <div class="stat-card">
+          <div id="stat-capacity" class="stat-value text-success">6,200 beds</div>
+          <div class="stat-label" data-i18n="stat_shelter_capacity">Shelter Capacity Available</div>
+        </div>
+        <div class="stat-card">
+          <div id="stat-packets" class="stat-value" style="color:#f59e0b;">24</div>
+          <div class="stat-label" data-i18n="stat_packets_relayed">Mesh Packets Relayed</div>
+        </div>
+        <div class="stat-card">
+          <div id="stat-nodes" class="stat-value text-primary">9</div>
+          <div class="stat-label" data-i18n="stat_active_nodes">Active Mesh Nodes</div>
+        </div>
+      </div>
+
+      <!-- How Disaster Mesh Works -->
+      <div class="how-it-works-section">
+        <h3 class="section-title" data-i18n="hub_how_it_works">How Disaster Mesh Works</h3>
+        <p class="section-subtitle">No satellite subscription or mobile phone plan required. Completely autonomous peer-to-peer store-and-forward relay.</p>
+        
+        <div class="steps-grid">
+          <div class="step-card">
+            <h4 class="step-title" data-i18n="hub_step1_title">1. No Internet or SIM Card Needed</h4>
+            <p class="step-desc" data-i18n="hub_step1_desc">Your phone connects via Wi-Fi Direct, Bluetooth, or local battery-powered LoRa packet nodes (865 MHz) installed on panchayat rooftops and rescue boats.</p>
+          </div>
+          <div class="step-card">
+            <h4 class="step-title" data-i18n="hub_step2_title">2. Peer-to-Peer Store & Forward</h4>
+            <p class="step-desc" data-i18n="hub_step2_desc">Emergency packets 'hop' from phone to phone and node to node until reaching a rescue team, satellite terminal, or relief camp gateway.</p>
+          </div>
+          <div class="step-card">
+            <h4 class="step-title" data-i18n="hub_step3_title">3. Triage & Verified Rescues</h4>
+            <p class="step-desc" data-i18n="hub_step3_desc">NDRF, OSDMA, and volunteer boats view live priority queues with GPS coordinates, medical urgency, and family headcounts.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Emergency Contacts Grid -->
+      <div class="form-card">
+        <h3 class="section-title" data-i18n="contacts_title">Verified Emergency Helplines & Radio Frequencies</h3>
+        <p class="section-subtitle" data-i18n="contacts_subtitle">Dial direct or broadcast over amateur radio channels:</p>
+
+        <div class="steps-grid">
+          <div class="step-card" style="border-left-color:#ef4444;">
+            <strong>National Disaster (NDMA)</strong>
+            <p class="text-xs text-muted">24x7 National Control Room</p>
+            <a href="tel:1078" class="btn btn-call mt-2">📞 Call 1078</a>
+          </div>
+          <div class="step-card" style="border-left-color:#f59e0b;">
+            <strong>Odisha Disaster (OSDMA)</strong>
+            <p class="text-xs text-muted">State Emergency Operation Center</p>
+            <a href="tel:1070" class="btn btn-call mt-2">📞 Call 1070</a>
+          </div>
+          <div class="step-card" style="border-left-color:#3b82f6;">
+            <strong>Ambulance Emergency</strong>
+            <p class="text-xs text-muted">First-Aid & Trauma Dispatch</p>
+            <a href="tel:108" class="btn btn-call mt-2">📞 Call 108</a>
+          </div>
+          <div class="step-card" style="border-left-color:#10b981;">
+            <strong>HAM Radio & LoRa Net</strong>
+            <p class="text-xs text-muted">144.500 MHz VHF / 865.200 MHz</p>
+            <span class="badge badge-mesh mt-2">Callsign: VU2OSD / VU3TKM</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. SOS EMERGENCY VIEW -->
+    <section id="view-sos" class="tab-view" style="display:none;">
+      <div class="form-card">
+        <h2 class="section-title" data-i18n="sos_title" style="color:#ef4444;">Request Immediate Emergency Rescue or Aid</h2>
+        <p class="section-subtitle" data-i18n="sos_subtitle">
+          This form works completely offline. If cell towers are down, your SOS is queued in browser IndexedDB and broadcasted peer-to-peer across local mesh nodes.
+        </p>
+
+        <form id="sos-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="sos-name" data-i18n="form_full_name">Full Name / Family Head *</label>
+              <input type="text" id="sos-name" class="form-control" required placeholder="e.g. Ramesh Kumar Mohanty">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="sos-phone" data-i18n="form_phone">Mobile Number (if available)</label>
+              <input type="tel" id="sos-phone" class="form-control" placeholder="e.g. +91 94371 00000">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="sos-people" data-i18n="form_people_count">Number of People Trapped / In Need *</label>
+              <input type="number" id="sos-people" class="form-control" min="1" max="150" value="1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="sos-status" data-i18n="form_status_label">Immediate Emergency Status *</label>
+              <select id="sos-status" class="form-control" required>
+                <option value="trapped">🚨 Trapped / Need Water Rescue (Boat Required)</option>
+                <option value="medical">🚑 Medical Emergency (Trauma, Elderly, Infant)</option>
+                <option value="food_water">💧 Starvation / No Drinking Water</option>
+                <option value="safe_checkin">✅ Safe / Evacuated to Safe Ground</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="sos-triage" data-i18n="form_triage_label">Triage Priority Level *</label>
+              <select id="sos-triage" class="form-control" required>
+                <option value="urgent">Critical / Life-Threatening (Immediate)</option>
+                <option value="high">High (Within 3-6 Hours)</option>
+                <option value="moderate">Moderate (Within 24 Hours)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="sos-district" data-i18n="form_district">District / Region *</label>
+              <select id="sos-district" class="form-control" required>
+                <option value="Puri">Puri</option>
+                <option value="Jagatsinghpur">Jagatsinghpur</option>
+                <option value="Kendrapara">Kendrapara</option>
+                <option value="Balasore">Balasore</option>
+                <option value="Bhadrak">Bhadrak</option>
+                <option value="Cuttack">Cuttack</option>
+                <option value="Khordha">Khordha / Bhubaneswar</option>
+                <option value="Ganjam">Ganjam</option>
+                <option value="Other">Other Disaster Affected District</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Geolocation Section -->
+          <div class="form-group">
+            <label class="form-label">GPS Geolocation</label>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+              <button type="button" id="btn-capture-gps" class="btn btn-secondary btn-sm" data-i18n="form_location_btn">
+                📍 Get Exact GPS Coordinates
+              </button>
+              <span id="gps-status-indicator" class="text-xs text-muted">No GPS coordinates captured yet.</span>
+            </div>
+            <div class="form-row mt-2">
+              <input type="number" step="0.00001" id="sos-lat" class="form-control" placeholder="Latitude (e.g. 19.8135)">
+              <input type="number" step="0.00001" id="sos-lon" class="form-control" placeholder="Longitude (e.g. 85.8312)">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="sos-landmark" data-i18n="form_landmark">Landmark / Village / House Description *</label>
+            <textarea id="sos-landmark" class="form-control" rows="3" required placeholder="e.g. Red roof house near Panchayat well, 4 feet flood water entered, elderly woman with chest pain."></textarea>
+          </div>
+
+          <!-- Needs Checklist -->
+          <div class="form-group">
+            <label class="form-label" data-i18n="form_needs_label">Immediate Needs (Select all that apply)</label>
+            <div class="checkbox-grid">
+              <label class="checkbox-label">
+                <input type="checkbox" name="needs" value="boat"> 🚤 <span data-i18n="need_boat">Rescue Boat Needed</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" name="needs" value="infant_food"> 🍼 <span data-i18n="need_infant_food">Baby Food / Milk</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" name="needs" value="medicines"> 💊 <span data-i18n="need_medicines">Insulin / Essential Meds</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" name="needs" value="drinking_water"> 💧 <span data-i18n="need_drinking_water">Clean Drinking Water</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" name="needs" value="charging"> ⚡ <span data-i18n="need_charging">Phone / Radio Power</span>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" id="sos-submit-btn" class="btn btn-emergency btn-block" data-i18n="form_submit_sos">
+            TRANSMIT SOS OVER MESH
+          </button>
+        </form>
+
+        <div id="sos-feedback-box" style="display:none;"></div>
+      </div>
+    </section>
+
+    <!-- 3. MISSING PERSONS VIEW -->
+    <section id="view-missing" class="tab-view" style="display:none;">
+      <div class="form-card">
+        <h2 class="section-title" data-i18n="missing_title">Missing & Found Persons Registry</h2>
+        <p class="section-subtitle" data-i18n="missing_subtitle">
+          Compliant with India's DPDP Act 2023. Contact information is masked to protect citizen privacy during chaotic disaster environments.
+        </p>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+          <input type="text" id="missing-search-input" class="form-control" style="flex:1; min-width:240px;" placeholder="Search by name, village, or shelter...">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('report-missing-collapse').style.display='block'">+ Report Missing Person</button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('report-found-collapse').style.display='block'">+ Report Found / Safe Person</button>
+        </div>
+
+        <!-- Collapsible Report Form -->
+        <div id="report-missing-collapse" style="display:none; background:#0b1120; padding:16px; border-radius:8px; margin-bottom:20px; border:1px solid #334155;">
+          <h3 class="text-md font-bold mb-3">Register Missing / Safe Person</h3>
+          <form id="missing-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Record Type</label>
+                <select id="missing-type" class="form-control">
+                  <option value="missing">Missing Person (Searching for)</option>
+                  <option value="found_safe">Found Person / Safe in Shelter</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Full Name of Person *</label>
+                <input type="text" id="missing-name" class="form-control" required placeholder="Person's full name">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Age & Gender</label>
+                <div style="display:flex; gap:10px;">
+                  <input type="number" id="missing-age" class="form-control" placeholder="Age" min="0" max="120" style="width:100px;">
+                  <select id="missing-gender" class="form-control">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other / Child</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Last Known Location / Shelter *</label>
+                <input type="text" id="missing-location" class="form-control" required placeholder="e.g. Village ward 4, Ersama">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Current Shelter (if found)</label>
+                <input type="text" id="missing-shelter" class="form-control" placeholder="e.g. Puri Cyclone Shelter #12">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Your Contact Phone (will be masked) *</label>
+                <input type="tel" id="missing-phone" class="form-control" required placeholder="+91 98000 00000">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Your Name & Identifying Features</label>
+              <div class="form-row">
+                <input type="text" id="missing-contact-name" class="form-control" placeholder="Your name (e.g. Relative / Camp Officer)">
+                <input type="text" id="missing-features" class="form-control" placeholder="Clothing, height, marks, language spoken">
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+              <button type="submit" class="btn btn-primary">Submit to Registry</button>
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('report-missing-collapse').style.display='none'">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Registry Table -->
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th data-i18n="col_person_name">Name</th>
+                <th data-i18n="col_age_gender">Age / Gender</th>
+                <th data-i18n="col_last_seen">Last Known Location / Shelter</th>
+                <th data-i18n="col_contact">Contact (Masked)</th>
+                <th data-i18n="col_status">Status</th>
+              </tr>
+            </thead>
+            <tbody id="missing-persons-tbody">
+              <!-- Loaded via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. SHELTERS & WATER VIEW -->
+    <section id="view-resources" class="tab-view" style="display:none;">
+      <div class="form-card">
+        <div class="card-header-row">
+          <div>
+            <h2 class="section-title" data-i18n="res_title">Disaster Shelters, Hospitals & Water Points</h2>
+            <p class="section-subtitle" data-i18n="res_subtitle">
+              Verified government and community shelters with solar backup, clean water, and VHF/Mesh radio communication.
+            </p>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="pill-btn" onclick="resourceMapManager.setViewMode('map')" data-i18n="btn_map_view">Map View</button>
+            <button class="pill-btn" onclick="resourceMapManager.setViewMode('list')" data-i18n="btn_list_view">Low-Bandwidth List</button>
+          </div>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px;">
+          <button class="pill-btn" onclick="resourceMapManager.setFilter('all')">All Resources</button>
+          <button class="pill-btn" onclick="resourceMapManager.setFilter('shelter')">🏠 Cyclone Shelters</button>
+          <button class="pill-btn" onclick="resourceMapManager.setFilter('hospital')">🏥 Hospitals & First Aid</button>
+          <button class="pill-btn" onclick="resourceMapManager.setFilter('water_food')">💧 Water & Food Points</button>
+          <button class="pill-btn" onclick="resourceMapManager.setFilter('charging_mesh')">⚡ Solar & Mesh Radios</button>
+        </div>
+
+        <!-- Leaflet Map Container -->
+        <div id="resource-map" style="height: 380px; width: 100%; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color);"></div>
+
+        <!-- Fallback / Card List Container -->
+        <div id="resource-list-container">
+          <!-- Populated by map.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. LIVE ALERTS VIEW -->
+    <section id="view-alerts" class="tab-view" style="display:none;">
+      <div class="form-card">
+        <h2 class="section-title" data-i18n="alerts_title">Official Disaster Announcements & Warnings</h2>
+        <p class="section-subtitle" data-i18n="alerts_subtitle">
+          Synchronized from IMD, NDMA, and OSDMA control centers. Also broadcasted across regional LoRa and SMS channels.
+        </p>
+
+        <div id="alerts-container">
+          <!-- Populated by app.js -->
+        </div>
+
+        <!-- SMS Broadcast Fallback Simulator -->
+        <div class="mt-4 p-3 bg-dark-lighter rounded">
+          <h3 class="text-sm font-semibold mb-2">📱 Low-Bandwidth SMS Broadcast Gateway</h3>
+          <p class="text-xs text-muted mb-2">
+            In areas with zero data signal but basic 2G voice reception, send the SMS keyword <code>ALERT ODISHA</code> to <strong>51969</strong> or <strong>1070</strong> to receive compressed text updates directly to any basic feature phone.
+          </p>
+          <div class="flex-gap-2">
+            <input type="text" readonly class="form-control text-xs font-mono" value="DISASTER ALERT: Landfall in 12h. Move to nearest Multi-Purpose Shelter. Boil water before drinking.">
+            <button class="btn btn-secondary btn-sm" onclick="alert('SMS broadcast simulation dispatched to regional cell broadcast towers.')">Simulate Cell Broadcast</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. GUIDES & DOWNLOADS VIEW -->
+    <section id="view-guides" class="tab-view" style="display:none;">
+      <div class="form-card">
+        <h2 class="section-title" data-i18n="guides_title">Offline Mesh Setup & Emergency Survival Handbook</h2>
+        <p class="section-subtitle" data-i18n="guides_subtitle">
+          Downloadable guides and step-by-step hardware instructions to turn low-cost $5 ESP32 or LoRa boards into off-grid disaster communications relays.
+        </p>
+
+        <div class="steps-grid">
+          <!-- Guide 1: Meshtastic / LoRa Setup -->
+          <div class="step-card" style="border-left-color:#38bdf8;">
+            <h3 class="step-title">1. Meshtastic / LoRa 865 MHz Radio Setup</h3>
+            <p class="step-desc">
+              How to configure standard LilyGO T-Beam, Heltec ESP32, or RAK Wireless nodes for India's license-free 865-867 MHz ISM band.
+            </p>
+            <ul class="text-xs text-muted mt-2 mb-3" style="padding-left:16px;">
+              <li>Frequency: 865.200 MHz (India WPC approved)</li>
+              <li>Modulation: LoRa, Bandwidth 250 kHz, SF11</li>
+              <li>Antenna: 868 MHz tuned whip or ground-plane</li>
+              <li>Power: 18650 Li-ion battery + 5V USB solar panel</li>
+            </ul>
+            <a href="/offline_handbook.html#hardware" target="_blank" class="btn btn-secondary btn-sm">Read Hardware Schematics</a>
+          </div>
+
+          <!-- Guide 2: P2P App & Wi-Fi Direct -->
+          <div class="step-card" style="border-left-color:#10b981;">
+            <h3 class="step-title">2. Offline PWA & Wi-Fi Direct Relay</h3>
+            <p class="step-desc">
+              How to install DisasterMesh onto Android/iOS home screens for 100% offline access, and link phones using Wi-Fi Direct or Briar P2P.
+            </p>
+            <ul class="text-xs text-muted mt-2 mb-3" style="padding-left:16px;">
+              <li>Install via browser menu: 'Add to Home Screen'</li>
+              <li>Pre-caches all cyclone shelters, guides, and forms</li>
+              <li>BroadcastChannel syncs SOS packets across tabs & peers</li>
+            </ul>
+            <a href="/offline_handbook.html#pwa" target="_blank" class="btn btn-secondary btn-sm">Read Offline App Guide</a>
+          </div>
+
+          <!-- Guide 3: Survival & First Aid -->
+          <div class="step-card" style="border-left-color:#ef4444;">
+            <h3 class="step-title">3. Pocket Emergency Survival Guide</h3>
+            <p class="step-desc">
+              Immediate life-saving procedures for flood water purification, snake bite triage, cyclone shelter protocol, and infant care.
+            </p>
+            <ul class="text-xs text-muted mt-2 mb-3" style="padding-left:16px;">
+              <li>Water Chlorination: 2 drops bleach per liter</li>
+              <li>Cyclone: Avoid coconut trees and tin roofs</li>
+              <li>Flood: Do not walk in fast-moving water over 6 inches</li>
+            </ul>
+            <a href="/offline_handbook.html#firstaid" target="_blank" class="btn btn-secondary btn-sm">View Printable Handbook</a>
+          </div>
+        </div>
+
+        <div class="mt-4 p-4 text-center bg-dark-lighter rounded">
+          <h3 class="text-md font-bold mb-2">📄 Standalone Zero-Dependency Pocket Manual</h3>
+          <p class="text-xs text-muted mb-3">
+            Contains all district maps, emergency numbers, water purification formulas, and radio codes in a single self-contained HTML file under 40 KB. Save it to your phone storage now!
+          </p>
+          <a href="/offline_handbook.html" download="DisasterMesh_Pocket_Handbook.html" class="btn btn-primary">
+            📥 Save Single-File Pocket Handbook (Offline HTML)
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. VOLUNTEERS & DONORS VIEW -->
+    <section id="view-volunteers" class="tab-view" style="display:none;">
+      <div class="form-card">
+        <h2 class="section-title" data-i18n="nav_volunteers">Volunteers & Donors Standby Registration</h2>
+        <p class="section-subtitle">
+          Join civil defense teams, offer rescue boats, HAM radio relays, blood donations, or solar battery charging equipment.
+        </p>
+
+        <form id="volunteer-form" class="mb-4">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Full Name *</label>
+              <input type="text" id="vol-name" class="form-control" required placeholder="Your full name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number *</label>
+              <input type="tel" id="vol-phone" class="form-control" required placeholder="+91 98000 00000">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">District *</label>
+              <select id="vol-district" class="form-control">
+                <option value="Puri">Puri</option>
+                <option value="Jagatsinghpur">Jagatsinghpur</option>
+                <option value="Kendrapara">Kendrapara</option>
+                <option value="Balasore">Balasore</option>
+                <option value="Cuttack">Cuttack</option>
+                <option value="Khordha">Khordha / Bhubaneswar</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Volunteer Specialization / Role *</label>
+              <select id="vol-role" class="form-control">
+                <option value="boat_rescue">Inflatable Boat / Water Rescue Operator</option>
+                <option value="medical">Doctor / Paramedic / First Aid</option>
+                <option value="mesh_ham_radio">HAM Radio / LoRa Mesh Node Operator</option>
+                <option value="food_logistics">Food & Dry Ration Logistics / Cooking</option>
+                <option value="shelter_support">Cyclone Shelter Community Support</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Blood Group (if willing to donate)</label>
+              <select id="vol-blood" class="form-control">
+                <option value="">Not donating blood</option>
+                <option value="O+">O Positive (O+)</option>
+                <option value="O-">O Negative (O-)</option>
+                <option value="A+">A Positive (A+)</option>
+                <option value="A-">A Negative (A-)</option>
+                <option value="B+">B Positive (B+)</option>
+                <option value="B-">B Negative (B-)</option>
+                <option value="AB+">AB Positive (AB+)</option>
+                <option value="AB-">AB Negative (AB-)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Equipment Pledged (Boats, Radios, Generators)</label>
+              <input type="text" id="vol-equipment" class="form-control" placeholder="e.g. 1x 15HP motor boat, 2x LoRa radios, 1kW generator">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Register for Disaster Roster</button>
+        </form>
+
+        <h3 class="text-md font-bold mb-3">Mobilized Disaster Volunteer Standby Roster:</h3>
+        <div id="volunteers-list">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. MESH NODE MONITOR VIEW -->
+    <section id="view-mesh" class="tab-view" style="display:none;">
+      <div class="form-card">
+        <h2 class="section-title" data-i18n="nav_mesh">Web Interface to the Disaster Mesh Network</h2>
+        <p class="section-subtitle">
+          Direct browser interface to the physical LoRa packet radio node or local ad-hoc Wi-Fi peer mesh.
+        </p>
+
+        <div id="mesh-monitor-container">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. ADMIN & RESPONDERS VIEW -->
+    <section id="view-admin" class="tab-view" style="display:none;">
+      <div class="form-card">
+        <h2 class="section-title" data-i18n="admin_title">Rescue Operations & District Admin Console</h2>
+        <p class="section-subtitle">
+          Restricted to NDRF, ODRAF, district collectors, and authorized disaster incident commanders.
+        </p>
+
+        <!-- PIN Login Box -->
+        <div id="admin-auth-box">
+          <form id="admin-login-form" style="max-width:380px; margin:20px 0;">
+            <div class="form-group">
+              <label class="form-label" data-i18n="admin_pin_prompt">Enter Responder Security PIN:</label>
+              <input type="password" id="admin-pin-input" class="form-control font-mono" placeholder="Default: 1078 or disaster2026" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block" data-i18n="admin_btn_login">Access Console</button>
+          </form>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="admin-dashboard-content" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-secondary btn-sm" onclick="adminConsole.exportData('sos')">📥 Export SOS CSV (NDRF)</button>
+              <button class="btn btn-secondary btn-sm" onclick="adminConsole.exportData('missing')">📥 Export Missing Persons CSV</button>
+              <button class="btn btn-secondary btn-sm" onclick="adminConsole.exportGeoJSON()">🗺️ Export Shelters GeoJSON (GIS)</button>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="adminConsole.logout(); adminConsole.renderDashboard();">Logout</button>
+          </div>
+
+          <!-- Broadcast Official Alert Form -->
+          <div class="p-3 bg-dark-lighter rounded mb-4">
+            <h3 class="text-md font-bold mb-2" data-i18n="admin_post_alert_title">Broadcast New Official Emergency Alert</h3>
+            <form id="admin-post-alert-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Issuing Authority</label>
+                  <select id="alert-source" class="form-control">
+                    <option value="IMD">IMD (India Meteorological Department)</option>
+                    <option value="OSDMA">OSDMA (Odisha State Disaster Authority)</option>
+                    <option value="NDMA">NDMA (National Disaster Management)</option>
+                    <option value="DEOC">District Emergency Operation Center</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Alert Severity Level</label>
+                  <select id="alert-level" class="form-control">
+                    <option value="RED">RED (Severe Cyclone / Extreme Flood Landfall)</option>
+                    <option value="AMBER">AMBER (High Alert / Evacuate Lowlands)</option>
+                    <option value="YELLOW">YELLOW (Watch & Readiness Advisory)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Alert Title (English / Odia / Hindi)</label>
+                <input type="text" id="alert-title-en" class="form-control mb-2" required placeholder="English Title: e.g. Flash Flood Evacuation Order">
+                <input type="text" id="alert-title-or" class="form-control mb-2" placeholder="Odia Title: ବନ୍ୟା ତଳିଆ ଅଞ୍ଚଳ ଖାଲି କରିବାକୁ ନିର୍ଦ୍ଦେଶ">
+                <input type="text" id="alert-title-hi" class="form-control" placeholder="Hindi Title: बाढ़ प्रभावित क्षेत्रों को खाली करने का आदेश">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Detailed Description</label>
+                <textarea id="alert-desc-en" class="form-control mb-2" rows="2" required placeholder="English instructions..."></textarea>
+                <textarea id="alert-desc-or" class="form-control mb-2" rows="2" placeholder="Odia instructions..."></textarea>
+                <textarea id="alert-desc-hi" class="form-control" rows="2" placeholder="Hindi instructions..."></textarea>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Affected Districts</label>
+                  <input type="text" id="alert-areas" class="form-control" value="Puri, Jagatsinghpur, Kendrapara">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Immediate Action Required</label>
+                  <input type="text" id="alert-action" class="form-control" value="Move immediately to concrete Multi-Purpose Cyclone Shelters.">
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-emergency btn-sm">🚨 Broadcast Alert to Mesh Network</button>
+            </form>
+          </div>
+
+          <!-- Live SOS Triage Queue -->
+          <h3 class="text-md font-bold mb-2">Live Rescue Dispatch & SOS Triage Queue:</h3>
+          <div class="table-responsive mb-4">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Victim Name</th>
+                  <th>People</th>
+                  <th>Triage</th>
+                  <th>District / Location</th>
+                  <th>Needs & Mesh Route</th>
+                  <th>Status & Team</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-sos-tbody">
+                <!-- Populated by admin.js -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Telemetry Box -->
+          <h3 class="text-md font-bold mb-2">Edge Mesh Relays & Network Topology:</h3>
+          <div id="admin-telemetry-box" class="p-3 bg-dark-lighter rounded">
+            <!-- Populated by admin.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. FIELD DRILLS & SIMULATION VIEW -->
+    <section id="view-drills" class="tab-view" style="display:none;">
+      <div class="form-card">
+        <h2 class="section-title" data-i18n="nav_drills">Disaster Response Testing & Field Drill Simulator</h2>
+        <p class="section-subtitle">
+          Test system resilience under degraded conditions: simulate 2G network bandwidth, total cellular blackouts, and store-and-forward mesh packet hops.
+        </p>
+
+        <div class="steps-grid mb-4">
+          <div class="step-card">
+            <h4 class="step-title">1. Broadband / 4G (Baseline)</h4>
+            <p class="step-desc">Normal high-speed internet with full maps and cloud sync.</p>
+            <button class="btn btn-secondary btn-sm drill-btn mt-2" data-mode="normal">Activate Normal Mode</button>
+          </div>
+          <div class="step-card" style="border-left-color:#f59e0b;">
+            <h4 class="step-title">2. Degraded 2G Simulation</h4>
+            <p class="step-desc">30 kbps bandwidth, 1500ms latency. Forces text-only rendering under 25 KB.</p>
+            <button class="btn btn-secondary btn-sm drill-btn mt-2" data-mode="2g">Simulate 2G Network</button>
+          </div>
+          <div class="step-card" style="border-left-color:#ef4444;">
+            <h4 class="step-title">3. Total Blackout / Mesh Only</h4>
+            <p class="step-desc">Cellular towers destroyed. Stores all data in IndexedDB and relays across peer radios.</p>
+            <button class="btn btn-secondary btn-sm drill-btn mt-2" data-mode="offline">Simulate Blackout</button>
+          </div>
+        </div>
+
+        <!-- Team Roles & Field Guide -->
+        <h3 class="text-md font-bold mb-2">Disaster Management Multi-Disciplinary Team Roles:</h3>
+        <div class="steps-grid">
+          <div class="step-card">
+            <strong>Frontend Developer</strong>
+            <p class="text-xs text-muted mt-1">Ensures bundle stays &lt; 200 KB, audits Service Worker offline caching, tests WCAG 2.1 AA accessibility and Odia/Hindi fonts.</p>
+          </div>
+          <div class="step-card">
+            <strong>Backend Developer</strong>
+            <p class="text-xs text-muted mt-1">Maintains zero-dependency Python edge server, verifies DPDP Act masking, optimizes SQLite and GeoJSON/CSV exports for NDRF.</p>
+          </div>
+          <div class="step-card">
+            <strong>UI/UX Designer</strong>
+            <p class="text-xs text-muted mt-1">Designs 48px+ touch targets for rain-slicked screens, high-contrast night/battery-saving mode, and simple non-technical icons.</p>
+          </div>
+          <div class="step-card">
+            <strong>Mesh & Radio Engineer</strong>
+            <p class="text-xs text-muted mt-1">Configures 865 MHz LoRa nodes, tests Fresnel zone and antenna gain on panchayat rooftops, ensures WPC regulatory compliance.</p>
+          </div>
+          <div class="step-card">
+            <strong>Disaster Management Advisor</strong>
+            <p class="text-xs text-muted mt-1">Validates IMD/OSDMA alert protocols, sets triage priorities (trapped vs medical), and liaisons with District Emergency Operation Centers.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Emergency QR Modal -->
+  <div id="qr-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <h3 class="text-md font-bold mb-2">Offline Emergency SOS QR Packet</h3>
+      <div id="qr-modal-content"></div>
+    </div>
+  </div>
+
+  <!-- DPDP Act 2023 Privacy Consent Modal -->
+  <div id="dpdp-consent-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <h3 class="text-md font-bold mb-2" data-i18n="legal_title">Privacy, Data Protection & Legal Notice</h3>
+      <p class="text-sm text-muted mb-3" data-i18n="legal_dpdp">
+        Compliant with the Digital Personal Data Protection Act, 2023 (DPDP Act). Data collected is exclusively utilized for life-saving search, rescue, and relief operations under the emergency exemption provisions (Section 7). Phone numbers are masked and data will be permanently purged after the emergency phase.
+      </p>
+      <button class="btn btn-primary btn-block" onclick="app.acceptDPDPConsent()" data-i18n="btn_consent_accept">
+        I Understand & Consent
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p data-i18n="footer_text">DisasterMesh India — Open Source Disaster Resilience Platform. Designed for zero-internet environments.</p>
+    <p class="text-xs text-muted mt-2">
+      Helpline: NDMA 1078 | OSDMA 1070 | Police 112 | Ambulance 108 | Compliant with DPDP Act 2023
+    </p>
+  </footer>
+
+  <!-- Asynchronous Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- Core Modular Scripts -->
+  <script src="/js/i18n.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/mesh.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/map.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/app.js"></script>
+
+</body>
+</html>
